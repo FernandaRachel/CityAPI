@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CityAPI.Controllers {
     [Route ("api/[controller]")]
-    public class CityController : Controller {
+    public class CountryController : Controller {
 
         private readonly ApplicationDbContext _context;
 
-        public CityController (ApplicationDbContext context) {
+        public CountryController (ApplicationDbContext context) {
             _context = context;
         }
 
@@ -20,44 +20,38 @@ namespace CityAPI.Controllers {
         [HttpGet]
         public async Task<IActionResult> Get () {
 
-            var cityList = await _context.City.Include (c => c.people).ToListAsync ();
+            var countryList = await _context.Country.Include (c => c.City).ToListAsync ();
 
-            if (cityList == null) {
-                return NotFound (cityList);
-            }
-            return Ok (cityList);
+            return Ok (countryList);
 
         }
 
-        // GET api/city/5
+        // GET api/values/5
         [HttpGet ("{id}")]
         public async Task<IActionResult> Get (int id) {
 
-            var cityList = await _context.City.Include (c => c.people)
+            var countryList = await _context.Country.Include (c => c.City)
                 .Where (c => c.Id == id)
                 .ToListAsync ();
-
-            if (cityList == null) {
-                return NotFound (cityList);
+            if (countryList == null) {
+                return NotFound ();
             }
-
-            return Ok (cityList);
+            return Ok (countryList);
 
         }
-
         // POST api/city
         [HttpPost]
-        public async Task<IActionResult> Post ([FromBody] City city) {
+        public async Task<IActionResult> Post ([FromBody] Country country) {
             try {
 
-                city.Id = 0;
+                country.Id = 0;
 
                 if (ModelState.IsValid) {
 
-                    await _context.City.AddAsync (city);
+                    await _context.Country.AddAsync (country);
                     await _context.SaveChangesAsync ();
 
-                    return Created ($"api/city/{city.Id}", city);
+                    return Created ($"api/city/{country.Id}", country);
                 } else {
                     return BadRequest (ModelState);
                 }

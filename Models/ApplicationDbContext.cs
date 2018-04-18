@@ -9,5 +9,8 @@ namespace CityAPI.Models {
 
         public DbSet<City> City { get; set; }
         public DbSet<Country> Country { get; set; }
+
+        public DbSet<People> People { get; set; }
+        
     }
 }

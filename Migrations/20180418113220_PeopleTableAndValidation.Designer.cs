@@ -11,9 +11,10 @@ using System;
 namespace CityAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180418113220_PeopleTableAndValidation")]
+    partial class PeopleTableAndValidation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +40,13 @@ namespace CityAPI.Migrations
 
                     b.Property<int?>("CountryId");
 
+                    b.Property<int?>("peopleId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("peopleId");
 
                     b.ToTable("City");
                 });
@@ -67,8 +72,6 @@ namespace CityAPI.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("CityId");
-
                     b.Property<string>("peopleAge")
                         .IsRequired()
                         .HasMaxLength(3);
@@ -83,8 +86,6 @@ namespace CityAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId");
-
                     b.ToTable("People");
                 });
 
@@ -93,13 +94,10 @@ namespace CityAPI.Migrations
                     b.HasOne("CityAPI.Models.Country")
                         .WithMany("City")
                         .HasForeignKey("CountryId");
-                });
 
-            modelBuilder.Entity("CityAPI.Models.People", b =>
-                {
-                    b.HasOne("CityAPI.Models.City")
-                        .WithMany("people")
-                        .HasForeignKey("CityId");
+                    b.HasOne("CityAPI.Models.People", "people")
+                        .WithMany()
+                        .HasForeignKey("peopleId");
                 });
 #pragma warning restore 612, 618
         }
