@@ -3,7 +3,7 @@
 # api/city
 
 - GET - OK
-- POST: Required: id, cityName,cityArea
+- POST: Required: id, cityName,cityPopulation,cityArea
 
 ```
    {

@@ -64,7 +64,7 @@ namespace CityAPI.Controllers {
 
                 await _countryService.updateCountry (id, country);
 
-                return Created ($"api/city/{country.Id}", country);
+                return Ok (country);
             }
 
             return BadRequest (ModelState);
@@ -77,7 +77,7 @@ namespace CityAPI.Controllers {
 
             await _countryService.deleteCountry (id);
 
-        return Ok(id);
+            return Ok (id);
         }
     }
 }
