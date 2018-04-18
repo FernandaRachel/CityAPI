@@ -7,35 +7,66 @@ using CityAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using PeopleAPI.Services.Interfaces;
 
 namespace CityAPI.Services {
 
-    public class PeopleService : IPeople
-    {
-        public Task<People> deletePeople(int peopleId)
-        {
-            throw new NotImplementedException();
+    public class PeopleService : IPeople {
+
+        private readonly ApplicationDbContext _context;
+        private IConfiguration _configuration;
+
+        public PeopleService (IConfiguration configuration, ApplicationDbContext context) {
+            _context = context;
+            _configuration = configuration;
+        }
+        public async Task<List<People>> getPeople () {
+            var peoplelist = await _context.People
+                .ToListAsync ();
+
+            return peoplelist;
         }
 
-        public Task<List<People>> getPeople()
-        {
-            throw new NotImplementedException();
+        public async Task<List<People>> getPeople (int peopleId) {
+            var peoplelist = await _context.People
+                .Where (c => c.Id == peopleId)
+                .ToListAsync ();
+
+            return peoplelist;
         }
 
-        public Task<List<People>> getPeople(int peopleId)
-        {
-            throw new NotImplementedException();
+        public async Task<People> postPeople (People people) {
+
+            people.Id = 0;
+
+            await _context.People.AddAsync (people);
+            await _context.SaveChangesAsync ();
+
+            return people;
         }
 
-        public Task<People> postPeople(People people)
-        {
-            throw new NotImplementedException();
+        public async Task<People> deletePeople (int peopleId) {
+            var peopleobj = await _context.People
+                .Where (c => c.Id == peopleId)
+                .FirstOrDefaultAsync ();
+
+            if (peopleobj != null) {
+                _context.Entry (peopleobj).State = EntityState.Deleted;
+
+                await _context.SaveChangesAsync ();
+            }
+            return peopleobj;
         }
 
-        public Task<People> updatePeople(int peopleId, People people)
-        {
-            throw new NotImplementedException();
+        public async Task<People> updatePeople (int peopleId, People people) {
+            var currentpeople = await _context.People
+                .Where (x => x.Id == peopleId)
+                .AsNoTracking ()
+                .FirstOrDefaultAsync ();
+
+            _context.People.Update (people);
+            await _context.SaveChangesAsync ();
+
+            return people;
         }
     }
 }
