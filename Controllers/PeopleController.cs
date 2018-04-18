@@ -7,7 +7,6 @@ using CityAPI.Services;
 using CityAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PeopleAPI.Services.Interfaces;
 
 namespace CityAPI.Controllers {
     [Route ("api/[controller]")]
@@ -46,7 +45,7 @@ namespace CityAPI.Controllers {
         }
         // POST api/people
         [HttpPost]
-        public async Task<IActionResult> Post (int id, [FromBody] People people) {
+        public async Task<IActionResult> Post ([FromBody] People people) {
 
             if (ModelState.IsValid) {
 
@@ -65,7 +64,7 @@ namespace CityAPI.Controllers {
 
                 await _peopleService.updatePeople (id, people);
 
-                return Created ($"api/city/{people.Id}", people);
+                return Ok (people);
             }
 
             return BadRequest (ModelState);

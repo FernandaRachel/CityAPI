@@ -37,7 +37,16 @@ namespace CityAPI.Services {
 
             return cityobj;
         }
+        public async Task<City> postCity (City city) {
 
+            city.Id = 0;
+            city.people = new List<People> ();
+
+            await _context.City.AddAsync (city);
+            await _context.SaveChangesAsync ();
+
+            return city;
+        }
         public async Task<City> updateCity (int CityId, City city) {
 
             var currentcity = await _context.City
@@ -52,19 +61,8 @@ namespace CityAPI.Services {
             return currentcity;
         }
 
-        public async Task<City> postCity (City city) {
-
-            city.Id = 0;
-            city.people = new List<People> ();
-
-            await _context.City.AddAsync (city);
-            await _context.SaveChangesAsync ();
-
-            return city;
-        }
-
         public async Task<City> deleteCity (int cityId) {
-            
+
             var city = await _context.City
                 .Where (c => c.Id == cityId)
                 .FirstOrDefaultAsync ();
