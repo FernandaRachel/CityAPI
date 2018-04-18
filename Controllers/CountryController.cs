@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CityAPI.Models;
+using CityAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,61 +12,65 @@ namespace CityAPI.Controllers {
     public class CountryController : Controller {
 
         private readonly ApplicationDbContext _context;
+        private readonly CountryService _countryService;
 
-        public CountryController (ApplicationDbContext context) {
+        public CountryController (ApplicationDbContext context, CountryService countryService) {
             _context = context;
+            _countryService = countryService;
         }
 
-        // GET api/values
+        // GET api/country
         [HttpGet]
         public async Task<IActionResult> Get () {
 
-            var countryList = await _context.Country.Include (c => c.City).ToListAsync ();
+            var countryList = await _countryService.getCountry ();
 
             return Ok (countryList);
 
         }
 
-        // GET api/values/5
+        // GET api/country/5
         [HttpGet ("{id}")]
         public async Task<IActionResult> Get (int id) {
 
-            var countryList = await _context.Country.Include (c => c.City)
-                .Where (c => c.Id == id)
-                .ToListAsync ();
-            if (countryList == null) {
+            var country = await _countryService.getCountry (id);
+
+            if (country == null) {
                 return NotFound ();
             }
-            return Ok (countryList);
+
+            return Ok (country);
 
         }
-        // POST api/city
+        // POST api/country
         [HttpPost]
-        public async Task<IActionResult> Post ([FromBody] Country country) {
-            try {
+        public async Task<IActionResult> Post (int id, [FromBody] Country country) {
 
-                country.Id = 0;
+            if (ModelState.IsValid) {
 
-                if (ModelState.IsValid) {
+                await _countryService.postCountry(country);
 
-                    await _context.Country.AddAsync (country);
-                    await _context.SaveChangesAsync ();
-
-                    return Created ($"api/city/{country.Id}", country);
-                } else {
-                    return BadRequest (ModelState);
-                }
-
-            } catch (Exception ex) {
-                return StatusCode (500, ex.Message);
+                return Created ($"api/city/{country.Id}", country);
             }
+
+            return BadRequest (ModelState);
         }
 
-        // PUT api/values/5
+        // PUT api/country/5
         [HttpPut ("{id}")]
-        public void Put (int id, [FromBody] string value) { }
+        public async Task<IActionResult> Put (int id, [FromBody] Country country) {
+             if (ModelState.IsValid) {
 
-        // DELETE api/values/5
+                await _countryService.updateCountry (id, country);
+
+                return Created ($"api/city/{country.Id}", country);
+            }
+            
+            return BadRequest (ModelState);
+
+        }
+
+        // DELETE api/country/5
         [HttpDelete ("{id}")]
         public void Delete (int id) { }
     }
