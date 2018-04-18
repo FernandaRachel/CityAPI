@@ -30,6 +30,7 @@ namespace CityAPI
             services.AddDbContext<ApplicationDbContext>(options => 
             options.UseSqlServer(Configuration.GetConnectionString("localhostDB")));
             services.AddTransient<ICountry, CountryService>();
+            services.AddTransient<ICity, CityService>();
             services.AddMvc();
         }
 

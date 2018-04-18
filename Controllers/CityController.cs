@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CityAPI.Models;
+using CityAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +12,18 @@ namespace CityAPI.Controllers {
     public class CityController : Controller {
 
         private readonly ApplicationDbContext _context;
+        private readonly ICity _cityService;
 
-        public CityController (ApplicationDbContext context) {
+        public CityController (ApplicationDbContext context, ICity cityService) {
             _context = context;
+            _cityService = cityService;
         }
 
-        // GET api/values
+        // GET api/city
         [HttpGet]
         public async Task<IActionResult> Get () {
 
-            var cityList = await _context.City.Include (c => c.people).ToListAsync ();
+            var cityList = await _cityService.getCity ();
 
             if (cityList == null) {
                 return NotFound (cityList);
@@ -33,9 +36,7 @@ namespace CityAPI.Controllers {
         [HttpGet ("{id}")]
         public async Task<IActionResult> Get (int id) {
 
-            var cityList = await _context.City.Include (c => c.people)
-                .Where (c => c.Id == id)
-                .ToListAsync ();
+            var cityList = await _cityService.getCity ();
 
             if (cityList == null) {
                 return NotFound (cityList);
@@ -48,33 +49,34 @@ namespace CityAPI.Controllers {
         // POST api/city
         [HttpPost]
         public async Task<IActionResult> Post ([FromBody] City city) {
-            try {
+            if (ModelState.IsValid) {
 
-                city.Id = 0;
+                await _cityService.postCity (city);
 
-                if (ModelState.IsValid) {
-
-                    await _context.City.AddAsync (city);
-                    await _context.SaveChangesAsync ();
-
-                    return Created ($"api/city/{city.Id}", city);
-                } else {
-                    return BadRequest (ModelState);
-                }
-
-            } catch (Exception ex) {
-                return StatusCode (500, ex.Message);
+                return Created ($"api/city/{city.Id}", city);
             }
+
+            return BadRequest (ModelState);
+
         }
 
-        // PUT api/values/5
+        // PUT api/city/5
         [HttpPut ("{id}")]
-        public void Put (int id, [FromBody] string value) { }
-
-        // DELETE api/values/5
-        [HttpDelete ("{id}")]
-        public void Delete (int id) { 
+        public async Task<IActionResult> Put (int id, [FromBody] City city) {
             
+            await _cityService.updateCity (id, city);
+
+            return Ok (city);
+        }
+
+        // DELETE api/city/5
+        [HttpDelete ("{id}")]
+        public async Task<IActionResult> Delete (int id) {
+            
+            await _cityService.deleteCity (id);
+
+            return Ok (id);
+
         }
     }
 }
