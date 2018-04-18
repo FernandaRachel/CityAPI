@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CityAPI.Models;
 using CityAPI.Services;
+using CityAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +13,9 @@ namespace CityAPI.Controllers {
     public class CountryController : Controller {
 
         private readonly ApplicationDbContext _context;
-        private readonly CountryService _countryService;
+        private readonly ICountry _countryService;
 
-        public CountryController (ApplicationDbContext context, CountryService countryService) {
+        public CountryController (ApplicationDbContext context, ICountry countryService) {
             _context = context;
             _countryService = countryService;
         }
@@ -48,9 +49,9 @@ namespace CityAPI.Controllers {
 
             if (ModelState.IsValid) {
 
-                await _countryService.postCountry(country);
+                await _countryService.postCountry (country);
 
-                return Created ($"api/city/{country.Id}", country);
+                return Created ($"api/country/{country.Id}", country);
             }
 
             return BadRequest (ModelState);
@@ -59,19 +60,24 @@ namespace CityAPI.Controllers {
         // PUT api/country/5
         [HttpPut ("{id}")]
         public async Task<IActionResult> Put (int id, [FromBody] Country country) {
-             if (ModelState.IsValid) {
+            if (ModelState.IsValid) {
 
                 await _countryService.updateCountry (id, country);
 
                 return Created ($"api/city/{country.Id}", country);
             }
-            
+
             return BadRequest (ModelState);
 
         }
 
         // DELETE api/country/5
         [HttpDelete ("{id}")]
-        public void Delete (int id) { }
+        public async Task<IActionResult> Delete (int id) {
+
+            await _countryService.deleteCountry (id);
+
+        return Ok(id);
+        }
     }
 }
